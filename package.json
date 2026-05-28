@@ -1,38 +1,42 @@
 {
   "name": "@rti-developers/test-harness",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "Integration test harness for RTI XP Processor drivers",
   "repository": {
     "type": "git",
-    "url":  "https://github.com/RTI-Developers/test-harness.git"
+    "url": "https://github.com/RTI-Developers/test-harness.git"
   },
   "homepage": "https://github.com/RTI-Developers/test-harness#readme",
-  "main":  "dist/lib/test-harness.js",
+  "main": "dist/lib/test-harness.js",
   "types": "dist/lib/test-harness.d.ts",
   "exports": {
     ".": {
       "require": "./dist/lib/test-harness.js",
       "default": "./dist/lib/test-harness.js",
-      "types":   "./dist/lib/test-harness.d.ts"
+      "types": "./dist/lib/test-harness.d.ts"
     }
   },
-  "files": ["dist/lib"],
-  "engines": { "node": ">=18" },
+  "files": [
+    "dist/lib"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "clean":          "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
-    "build":          "npm run clean && tsc",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "vitest": "^3"
   },
   "devDependencies": {
-    "@rti-developers/sdk-types": "^1.0.0",
-    "@types/node":               "^20",
-    "typescript":                "^5",
-    "vitest":                    "^3"
+    "@rti-developers/sdk-types": "^1.1.0",
+    "@types/node": "^20",
+    "typescript": "^5",
+    "vitest": "^3"
   }
 }
