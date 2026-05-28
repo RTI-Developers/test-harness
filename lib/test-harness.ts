@@ -173,26 +173,29 @@ export interface Harness {
     remote(id: number): VirtualRemote;
 
     readonly monitor: Monitor;
-    readonly system:  ReturnType<typeof createSystem>;
+    readonly system:  SystemStatic;
 }
 
-// ─── Global augmentation for driver compat ───────────────────────────────────
+// ─── RTI globals type ─────────────────────────────────────────────────────────
+// sdk-types declares these as `const` in the global scope (for driver authoring).
+// The harness needs to install its shim implementations at runtime, so we cast
+// `global` to this writable shape instead of redeclaring the globals as `var`.
 
-declare global {
-    var System:         ReturnType<typeof createSystem>;
-    var Config:         ReturnType<typeof createConfig>;
-    var SystemVars:     ReturnType<typeof createSystemVars>;
-    var SystemVarsList: typeof import('./shims').SystemVarsList;
-    var Timer:          typeof import('./shims').Timer;
-    var TCP:            typeof import('./shims').TCP;
-    var Persistence:    typeof import('./shims').Persistence;
-}
+type RTIGlobals = {
+    System:         SystemStatic;
+    Config:         ConfigStatic;
+    SystemVars:     SystemVarsStatic;
+    SystemVarsList: SystemVarsListConstructor;
+    Timer:          TimerConstructor;
+    TCP:            TCPConstructor;
+    Persistence:    PersistenceStatic;
+};
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
 
 export function createHarness(options: HarnessOptions): Harness {
     const monitor               = new Monitor();
-    let   _system:                ReturnType<typeof createSystem>;
+    let   _system:                SystemStatic;
     let   _systemVars:            ReturnType<typeof createSystemVars> | null = null;
     const _procs: ChildProcess[]  = [];
     // Populated during setup() as the driver calls `new SystemVarsList(name)`.
@@ -250,32 +253,37 @@ export function createHarness(options: HarnessOptions): Harness {
             configMap['SYSTEM::TwoWayDeviceList'] = _remoteIds.join(' ');
         }
 
-        global.System     = _system;
-        global.Config     = createConfig(configMap);
-        _systemVars       = createSystemVars(monitor);
-        global.SystemVars = _systemVars;
+        // sdk-types declares the RTI globals as `const` (appropriate for driver authors).
+        // The harness must install its shim implementations at runtime, so we write
+        // through a typed cast rather than re-declaring the globals as `var`.
+        const _g = global as unknown as RTIGlobals;
+
+        _g.System     = _system;
+        _g.Config     = createConfig(configMap);
+        _systemVars   = createSystemVars(monitor);
+        _g.SystemVars = _systemVars;
 
         // Wrap SystemVarsList so we can intercept every construction the driver
         // makes and look up lists by name later (for scrollList emulation).
-        global.SystemVarsList = class extends SystemVarsList {
+        _g.SystemVarsList = class extends SystemVarsList {
             constructor(varname: string) {
                 super(varname);
                 _lists.set(varname, this);
             }
-        } as typeof SystemVarsList;
+        } as unknown as SystemVarsListConstructor;
 
-        global.Timer       = Timer;
-        global.TCP         = TCP;
-        global.Persistence = Persistence;
+        _g.Timer       = Timer       as unknown as TimerConstructor;
+        _g.TCP         = TCP         as unknown as TCPConstructor;
+        _g.Persistence = Persistence;
 
-        const _origSignalEvent    = global.System.SignalEvent.bind(global.System);
-        global.System.SignalEvent = (name: string): boolean => { monitor.onEvent(name); return _origSignalEvent(name); };
+        const _origSignalEvent    = _g.System.SignalEvent.bind(_g.System);
+        _g.System.SignalEvent = (name: string): boolean => { monitor.onEvent(name); return _origSignalEvent(name); };
 
         if (_remoteNames.size > 0) {
-            const _origGetViewName    = global.System.GetViewName.bind(global.System);
+            const _origGetViewName = _g.System.GetViewName.bind(_g.System);
             // The driver calls GetViewName(i) with the 0-based loop index into TwoWayDeviceList,
             // not the view ID itself — map through _remoteIds to get the right name.
-            global.System.GetViewName = (i: number): string => {
+            _g.System.GetViewName = (i: number): string => {
                 const viewId = _remoteIds[i];
                 return (viewId !== undefined ? _remoteNames.get(viewId) : undefined) ?? _origGetViewName(i);
             };

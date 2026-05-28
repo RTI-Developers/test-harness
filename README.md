@@ -10,8 +10,16 @@ Tests assert on `SystemVars.Write` calls via a time-bounded monitor, simulate RT
 
 ## Installation
 
+Add the registry to your project's `.npmrc`:
+
+```
+@rti-developers:registry=https://npm.pkg.github.com
+```
+
+Then install:
+
 ```bash
-npm install --save-dev github:RTI-Developers/test-harness
+npm install --save-dev @rti-developers/test-harness
 ```
 
 Add a `vitest.config.ts` (or extend your existing one) with generous timeouts — integration tests talk to real network devices:
@@ -32,7 +40,7 @@ export default defineConfig({
 ```ts
 import { describe, it, beforeAll, afterAll } from 'vitest';
 import * as path from 'path';
-import { createHarness } from 'rti-driver-test-harness';
+import { createHarness } from '@rti-developers/test-harness';
 
 const harness = createHarness({
     driver: path.resolve(__dirname, '../../dist/index.js'),
@@ -197,7 +205,7 @@ remoteA.scrollList('PlaylistItems', highlight, top);
 
 ```ts
 import { describe, it, beforeAll, afterAll } from 'vitest';
-import { createHarness } from 'rti-driver-test-harness';
+import { createHarness } from '@rti-developers/test-harness';
 
 const harness = createHarness({ ... });
 const remoteA = harness.remote(1);

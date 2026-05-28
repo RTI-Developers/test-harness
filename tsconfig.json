@@ -3,7 +3,7 @@
     "target": "ES2020",
     "module": "commonjs",
     "lib": ["ES2020"],
-    "types": ["node"],
+    "types": ["node", "@rti-developers/sdk-types"],
     "outDir": "dist",
     "rootDir": ".",
     "strict": true,

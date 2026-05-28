@@ -1,6 +1,6 @@
 {
   "name": "@rti-developers/test-harness",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Integration test harness for RTI XP Processor drivers",
   "repository": {
     "type": "git",
@@ -30,8 +30,9 @@
     "vitest": "^3"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "typescript":  "^5",
-    "vitest":      "^3"
+    "@rti-developers/sdk-types": "^1.0.0",
+    "@types/node":               "^20",
+    "typescript":                "^5",
+    "vitest":                    "^3"
   }
 }

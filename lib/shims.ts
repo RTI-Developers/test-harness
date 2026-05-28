@@ -12,13 +12,14 @@ export interface SystemOpts {
     IPNetMask?:  string;
 }
 
-export function createSystem(opts: SystemOpts = {}) {
+export function createSystem(opts: SystemOpts = {}): SystemStatic {
     return {
-        Version:    opts.Version    ?? '25.0',
-        IPAddress:  opts.IPAddress  ?? '127.0.0.1',
-        MACAddress: opts.MACAddress ?? '00:00:00:00:00:00',
-        LogLevel:   opts.LogLevel   ?? 0,
-        IPNetMask:  opts.IPNetMask  ?? '255.255.255.0',
+        Version:          opts.Version    ?? '25.0',
+        IPAddress:        opts.IPAddress  ?? '127.0.0.1',
+        MACAddress:       opts.MACAddress ?? '00:00:00:00:00:00',
+        LogLevel:         (opts.LogLevel  ?? 0) as LogLevel,
+        IPNetMask:        opts.IPNetMask  ?? '255.255.255.0',
+        OnShutdownFunc:   null as unknown as SystemStatic['OnShutdownFunc'],
 
         Print:                 (msg: string): boolean           => { process.stdout.write('[DRV] ' + msg + '\n'); return true; },
         PrintMultiline:        (msg: string): boolean           => { process.stdout.write('[DRV] ' + msg + '\n'); return true; },
@@ -46,7 +47,7 @@ export function createSystem(opts: SystemOpts = {}) {
     };
 }
 
-export function createConfig(configMap: Record<string, string> = {}) {
+export function createConfig(configMap: Record<string, string> = {}): ConfigStatic {
     return {
         Get(key: string): string {
             if (Object.prototype.hasOwnProperty.call(configMap, key)) return configMap[key];
@@ -56,10 +57,12 @@ export function createConfig(configMap: Record<string, string> = {}) {
     };
 }
 
-export function createSystemVars(monitor: Monitor | null) {
+export function createSystemVars(monitor: Monitor | null): SystemVarsStatic {
     const store: Record<string, unknown> = {};
     return {
-        OnSysVarChangeFunc: null as ((varname: string, data: unknown, prev: unknown) => void) | null,
+        // The SDK callback signature takes a variable ID (number).  The harness
+        // uses the monitor pattern for change detection instead, so this is unused.
+        OnSysVarChangeFunc: null as unknown as SystemVarsStatic['OnSysVarChangeFunc'],
         Write(varname: string, data: unknown): boolean {
             const prev = store[varname];
             store[varname] = data;
@@ -69,8 +72,8 @@ export function createSystemVars(monitor: Monitor | null) {
         Read(varname: string): unknown {
             return Object.prototype.hasOwnProperty.call(store, varname) ? store[varname] : '';
         },
-        AddSubscription:    (_id: unknown): boolean => true,
-        RemoveSubscription: (_id: unknown): boolean => true,
+        AddSubscription:    (_id: number): boolean => true,
+        RemoveSubscription: (_id: number): boolean => true,
     };
 }
 
