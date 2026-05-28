@@ -1,5 +1,5 @@
 {
-  "name": "rti-driver-test-harness",
+  "name": "@rti-developers/test-harness",
   "version": "1.0.0",
   "description": "Integration test harness for RTI XP Processor drivers",
   "repository": {
@@ -18,10 +18,12 @@
   },
   "files": ["dist/lib"],
   "engines": { "node": ">=18" },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "scripts": {
     "clean":          "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "build":          "npm run clean && tsc",
-    "prepare":        "npm run build",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
