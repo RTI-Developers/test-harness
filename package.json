@@ -34,7 +34,7 @@
     "vitest": "^3"
   },
   "devDependencies": {
-    "@rti-developers/sdk-types": "^1.0.2",
+    "@rti-developers/sdk-types": "^1.1.0",
     "@types/node": "^20",
     "typescript": "^5",
     "vitest": "^3"
